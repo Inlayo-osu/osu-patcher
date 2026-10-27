@@ -38,14 +38,7 @@ internal static class Injector
             startInfo.ArgumentList.Add("-devserver");
             startInfo.ArgumentList.Add(ServerAddress);
 
-            using var osuProcess = Process.Start(startInfo)
-                ?? throw new InvalidOperationException("Failed to start osu!.");
-            WaitForGameWindow(osuProcess);
-            WaitForSupportedTarget(osuProcess);
-
-            using var proc = new InjectableProcess((uint)osuProcess.Id);
-            var dllPath = Path.Combine(injectionDirectory, "osu!.hook.dll");
-            proc.Inject(dllPath, "Osu.Patcher.Hook.Hook", "Initialize");
+            LaunchAndInject(startInfo, injectionDirectory);
         }
         catch (OperationCanceledException)
         {
@@ -54,10 +47,58 @@ internal static class Injector
         catch (Exception e)
         {
             MessageBox.Show(
-                e.ToString(),
+                e.Message,
                 "Inlayo-patcher",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
+        }
+    }
+
+    private static void LaunchAndInject(ProcessStartInfo startInfo, string injectionDirectory)
+    {
+        var stagingPath = Path.Combine(startInfo.WorkingDirectory, "_staging");
+        if (File.Exists(stagingPath) || Directory.Exists(stagingPath))
+            throw new InvalidOperationException(
+                "An _staging file or folder already exists in the osu! folder. Remove it before starting the patcher.");
+
+        var createdStagingFile = false;
+        try
+        {
+            using (new FileStream(stagingPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                createdStagingFile = true;
+            }
+
+            File.SetAttributes(stagingPath, FileAttributes.ReadOnly);
+
+            for (var attempt = 0; ; attempt++)
+            {
+                using var osuProcess = Process.Start(startInfo)
+                    ?? throw new InvalidOperationException("Failed to start osu!.");
+
+                try
+                {
+                    WaitForGameWindow(osuProcess);
+                    WaitForSupportedTarget(osuProcess);
+                }
+                catch (OsuExitedDuringStartupException) when (attempt == 0)
+                {
+                    continue;
+                }
+
+                using var proc = new InjectableProcess((uint)osuProcess.Id);
+                var dllPath = Path.Combine(injectionDirectory, "osu!.hook.dll");
+                proc.Inject(dllPath, "Osu.Patcher.Hook.Hook", "Initialize");
+                return;
+            }
+        }
+        finally
+        {
+            if (createdStagingFile && File.Exists(stagingPath))
+            {
+                File.SetAttributes(stagingPath, FileAttributes.Normal);
+                File.Delete(stagingPath);
+            }
         }
     }
 
@@ -172,7 +213,7 @@ internal static class Injector
         {
             process.Refresh();
             if (process.HasExited)
-                throw new InvalidOperationException("osu! exited before its .NET runtime became available.");
+                throw new OsuExitedDuringStartupException("osu! exited before its .NET runtime became available.");
 
             using var target = new InjectableProcess((uint)processId);
             lastStatus = target.GetStatus();
@@ -225,7 +266,7 @@ internal static class Injector
         {
             process.Refresh();
             if (process.HasExited)
-                throw new InvalidOperationException("osu! exited before its game window appeared.");
+                throw new OsuExitedDuringStartupException("osu! exited before its game window appeared.");
 
             if (process.MainWindowHandle != IntPtr.Zero)
                 return;
@@ -234,6 +275,10 @@ internal static class Injector
         }
 
         throw new TimeoutException("Timed out waiting for the osu! window to appear.");
+    }
+
+    private sealed class OsuExitedDuringStartupException(string message) : InvalidOperationException(message)
+    {
     }
 
     private sealed class Settings

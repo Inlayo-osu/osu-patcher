@@ -32,7 +32,10 @@ may have changes that cause errors or crashes. No support will be provided.
 
 On first launch, the patcher looks for `osu!.exe` in common install locations and asks for its path
 if it cannot find it. The path is saved to `%LOCALAPPDATA%\Inlayo-patcher\settings.json` for future
-launches. The patcher then starts osu! with `-nosplash -devserver inlayo.com` and applies the patches.
+launches. The patcher temporarily creates a read-only `_staging` file in the osu! folder to prevent the
+client from applying updates, then starts osu! with `-nosplash -devserver inlayo.com` and applies the
+patches. The file is removed after injection (or if startup fails). If osu! exits during startup, the
+patcher retries once before showing an error.
 
 Latest tested `Stable` version: [`b20250309.2`](https://osu.ppy.sh/home/changelog/stable40/20250309.2).
 
