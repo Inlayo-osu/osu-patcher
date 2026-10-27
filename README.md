@@ -4,7 +4,7 @@
 
 # osu! patcher
 
-Apply several fixes to osu! make playing Relax more enjoyable.
+Apply four Relax-related patches to osu!stable.
 
 This is for use in offline play or private servers that allow modifications **only**.
 Use at your own risk! Modifications are disallowed on most servers, even though this project this 
@@ -16,33 +16,15 @@ Using this on official Bancho servers WILL get you banned.
 
 ### Relax
 - Show misses on hit objects while playing Relax
-- Re-enable combobreak sounds with Relax enabled
-- Save all Relax scores to local leaderboards automatically
-- Allow failing with Relax enabled
-- Re-enable the low hp glow (with shaders on)
+- Re-enable combo break sounds with Relax enabled
+- Automatically save Relax scores to local leaderboards
+- Re-enable the low HP glow with shaders on
 
 <sup>Note: Relax refers to Relax *or* Autopilot</sup>
 
-### PP
-- Show a live pp counter during gameplay and replays
-- Switch between Bancho and ~~Akatsuki~~ (soon) pp calculators
-- ~~Show PP on local leaderboards~~ (soon)
-
-### Mods
-- Always faintly show active mods during gameplay
-- Auto restart when failed due to Sudden Death mod
-
-### UI
-- Increase the thumbnail opacity in song select
-- Allow opening settings during gameplay with Ctrl+O
-- Other miscellaneous fixes
-
-<!-- ### Other -->
-<!-- - Download from beatmap mirrors when offline -->
-
 ## Usage
 
-Until I have a release ready, then go to the [latest actions build](ehttps://github.com/rushiiMachine/osu-patcher/actions?query=branch%3Amaster) 
+Until I have a release ready, go to the [latest actions build](https://github.com/Inlayo-osu/osu-patcher/actions?query=branch%3Amaster)
 for the `master` branch and download the attached artifact to extract. No automatic updater is included.
 
 Only the `Stable` release stream is officially supported! `Cutting Edge` and `Beta` release streams
@@ -55,7 +37,7 @@ into processes. If you aren't convinced it isn't a false positive, feel free to 
 
 ## Compiling
 
-1. Install the .NET SDK 8, the .NET Framework 4.5.2 developer pack, and Rust (rustup/cargo).
+1. Install the .NET SDK 8 and the .NET Framework 4.5.2 developer pack.
 2. Run `dotnet build Osu.Patcher.Injector -c Release`
 3. Output will be located in `./Osu.Patcher.Injector/bin/Release/net8.0/`
 

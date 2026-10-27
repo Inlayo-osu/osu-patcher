@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Osu.Patcher.Hook.Patches;
-using Osu.Performance;
 using Osu.Stubs.Wrappers;
 using Osu.Utils;
 
@@ -16,13 +12,7 @@ namespace Osu.Patcher.Hook;
 [UsedImplicitly]
 public static class Hook
 {
-    private const string GithubUrl = "https://github.com/rushiiMachine/osu-patcher";
-    private static Harmony _harmony = null!;
-
-    /// <summary>
-    ///     An instance of all patch options that have been initialized.
-    /// </summary>
-    public static IReadOnlyList<PatchOptions> PatchOptions { get; private set; } = null!;
+    private const string GithubUrl = "https://github.com/Inlayo-osu/osu-patcher";
 
     /// <summary>
     ///     Entry point into the hook called by the injector.
@@ -47,34 +37,13 @@ public static class Hook
 #if DEBUG
         ConsoleHook.InitializeConsoleOutput();
         DebugHook.Initialize();
-
-        try
-        {
-            // MSBuild is flimsy with building rosu-ffi on up-to-date builds, try linking early
-            Marshal.PrelinkAll(typeof(Native));
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"MSBuild broke again; clean & rebuild: {e}");
-            ShowErrorNotification();
-            return 0;
-        }
 #else
         ConsoleHook.InitializeLogOutput(osuDir);
 #endif
 
         try
         {
-            // Load settings
-            var settings = Settings.ReadFromDisk(osuDir);
-            PatchOptions = Patches.PatchOptions.CreateAllPatchOptions().ToList();
-            PatchOptions.Do(options => options.Load(settings));
-
-            _harmony = new Harmony("osu!patcher");
-            InitializePatches(_harmony);
-
-            // Forcefully reload options to allow patches to inject new options
-            OptionsUtils.ReloadOptions();
+            InitializePatches(new Harmony("osu!patcher"));
 
             Notifications.ShowMessage(
                 "osu!patcher initialized!",
