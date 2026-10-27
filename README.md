@@ -30,6 +30,10 @@ for the `master` branch and download the attached artifact to extract. No automa
 Only the `Stable` release stream is officially supported! `Cutting Edge` and `Beta` release streams
 may have changes that cause errors or crashes. No support will be provided.
 
+On first launch, the patcher looks for `osu!.exe` in common install locations and asks for its path
+if it cannot find it. The path is saved to `%LOCALAPPDATA%\Inlayo-patcher\settings.json` for future
+launches. The patcher then starts osu! with `-nosplash -devserver inlayo.com` and applies the patches.
+
 Latest tested `Stable` version: [`b20250309.2`](https://osu.ppy.sh/home/changelog/stable40/20250309.2).
 
 Your antivirus may detect it as malware, however this is completely expected as it contains code to inject 
@@ -38,8 +42,14 @@ into processes. If you aren't convinced it isn't a false positive, feel free to 
 ## Compiling
 
 1. Install the .NET SDK 8 and the .NET Framework 4.5.2 developer pack.
-2. Run `dotnet build Osu.Patcher.Injector -c Release`
-3. Output will be located in `./Osu.Patcher.Injector/bin/Release/net8.0/`
+2. Build a small, framework-dependent single-file executable for 32-bit Windows:
+   ```powershell
+   dotnet publish Osu.Patcher.Injector -c Release -r win-x86 --self-contained false -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false
+   ```
+3. Output will be located in `./Osu.Patcher.Injector/bin/Release/net8.0-windows/win-x86/publish/` with
+   `Inlayo-patcher.exe` as the single-file launcher. The .NET 8 Desktop Runtime (x86) must be installed on the
+   target computer. The injection DLLs are embedded in the EXE and extracted to `%TEMP%\Inlayo-patcher` at
+   runtime, so the publish folder contains only the executable.
 
 ## How
 

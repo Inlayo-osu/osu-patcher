@@ -1,56 +1,36 @@
 using System;
-using System.Diagnostics;
-using System.IO;
 using HarmonyLib;
 using JetBrains.Annotations;
 using Osu.Patcher.Hook.Patches;
 using Osu.Stubs.Wrappers;
-using Osu.Utils;
 
 namespace Osu.Patcher.Hook;
 
 [UsedImplicitly]
 public static class Hook
 {
-    private const string GithubUrl = "https://github.com/Inlayo-osu/osu-patcher";
-
     /// <summary>
     ///     Entry point into the hook called by the injector.
     /// </summary>
     [UsedImplicitly]
     public static int Initialize(string _)
     {
-        var osuDir = Path.GetDirectoryName(OsuAssembly.Assembly.Location)!;
-
-        try
-        {
-            Notifications.ShowMessage(
-                "Loading osu!patcher...",
-                NotificationColor.Neutral,
-                3000);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-
 #if DEBUG
         ConsoleHook.InitializeConsoleOutput();
         DebugHook.Initialize();
-#else
-        ConsoleHook.InitializeLogOutput(osuDir);
 #endif
+
+        Console.WriteLine("Inlayo-patcher hook started.");
 
         try
         {
-            InitializePatches(new Harmony("osu!patcher"));
+            var successful = InitializePatches(new Harmony("osu!patcher"), out var patchCount);
+            Console.WriteLine($"Initialized {patchCount} patches.");
 
-            Notifications.ShowMessage(
-                "osu!patcher initialized!",
-                NotificationColor.Neutral,
-                5000,
-                () => { Process.Start(GithubUrl); }
-            );
+            if (successful && patchCount > 0)
+                Notifications.ShowMessage("Inlayo-patcher has launched!", NotificationColor.Neutral, 2000);
+            else
+                ShowErrorNotification();
         }
         catch (Exception e)
         {
@@ -65,26 +45,33 @@ public static class Hook
     ///     For every type annotated with <c>[HarmonyPatch]</c> in this assembly, initialize the patch.
     /// </summary>
     /// <param name="harmony">Harmony patcher instance</param>
-    private static void InitializePatches(Harmony harmony)
+    private static bool InitializePatches(Harmony harmony, out int patchCount)
     {
+        var successful = true;
+        patchCount = 0;
+
         foreach (var type in AccessTools.GetTypesFromAssembly(typeof(Hook).Assembly))
         {
             if (!OsuPatchProcessor.IsOsuPatch(type))
                 continue;
 
-            Debug.WriteLine($"Processing Patch {type.Name}", "Hook");
+            patchCount++;
+            Console.WriteLine($"Installing patch {type.Name}...");
 
             try
             {
                 new OsuPatchProcessor(harmony, type).Patch();
+                Console.WriteLine($"Installed patch {type.Name}.");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Failed to initialize patch {type.Name}");
+                Console.WriteLine($"Failed to launch patch {type.Name}");
                 Console.WriteLine(e);
-                ShowErrorNotification();
+                successful = false;
             }
         }
+
+        return successful;
     }
 
     /// <summary>
@@ -95,10 +82,9 @@ public static class Hook
         try
         {
             Notifications.ShowMessage(
-                "osu!patcher experienced an error! Click to report.",
+                "Inlayo-patcher experienced an error!",
                 NotificationColor.Error,
-                20000,
-                () => { Process.Start($"{GithubUrl}/issues"); });
+                3000);
         }
         catch (Exception e2)
         {

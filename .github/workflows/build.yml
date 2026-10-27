@@ -34,7 +34,7 @@ jobs:
         with:
           name: osu!patcher-debug
           if-no-files-found: error
-          path: .\Osu.Patcher.Injector\bin\Debug\net8.0\**
+          path: .\Osu.Patcher.Injector\bin\Debug\net8.0-windows\**
       
       - name: Run stub tests
         run: dotnet run --project Osu.Stubs.Tests

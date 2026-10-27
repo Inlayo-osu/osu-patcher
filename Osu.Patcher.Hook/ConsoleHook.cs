@@ -14,7 +14,6 @@ namespace Osu.Patcher.Hook;
 // FIXME: make flushing async (flushing on main thread might cause mini lagspikes)
 internal static class ConsoleHook
 {
-    private const string LogFilename = "osu!patcher.log";
     private static volatile bool _consoleInitialized;
 
     [DllImport("kernel32.dll")]
@@ -31,15 +30,6 @@ internal static class ConsoleHook
 
         Console.SetOut(new InterceptingWriter(false));
         Console.SetError(new InterceptingWriter(true));
-    }
-
-    public static void InitializeLogOutput(string osuDir)
-    {
-        var fileStream = new FileStream(Path.Combine(osuDir, LogFilename), FileMode.Create, FileAccess.Write);
-        var outStream = new StreamWriter(new BufferedStream(fileStream)) { AutoFlush = true };
-
-        Console.SetOut(outStream);
-        Console.SetError(outStream);
     }
 
     private class InterceptingWriter : TextWriter
