@@ -48,7 +48,7 @@ into processes. If you aren't convinced it isn't a false positive, feel free to 
    ```
 3. Output will be located in `./Osu.Patcher.Injector/bin/Release/net8.0-windows/win-x86/publish/` with
    `Inlayo-patcher.exe` as the single-file launcher. The .NET 8 Desktop Runtime (x86) must be installed on the
-   target computer. The injection DLLs are embedded in the EXE and extracted to `%TEMP%\Inlayo-patcher` at
+   target computer. The injection DLLs are embedded in the EXE and extracted to `%TEMP%\Inlayo-patcher\injection` at
    runtime, so the publish folder contains only the executable.
 
 ## How
