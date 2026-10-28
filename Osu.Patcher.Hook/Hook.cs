@@ -28,7 +28,7 @@ public static class Hook
             Console.WriteLine($"Initialized {patchCount} patches.");
 
             if (successful && patchCount > 0)
-                Notifications.ShowMessage("Inlayo-patcher has launched!", NotificationColor.Neutral, 2000);
+                Notifications.ShowMessage("Inlayo-patcher has launched!", NotificationColor.Neutral, 4000);
             else
                 ShowErrorNotification();
         }

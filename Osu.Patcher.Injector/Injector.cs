@@ -14,6 +14,9 @@ namespace Osu.Patcher.Injector;
 internal static class Injector
 {
     private const string ServerAddress = "inlayo.com";
+    private static readonly string DefaultOsuDirectory = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "osu!");
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Inlayo-patcher",
@@ -125,11 +128,10 @@ internal static class Injector
 
         var candidates = new[]
         {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "osu!", "osu!.exe"),
+            Path.Combine(DefaultOsuDirectory, "osu!.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "osu!", "osu!.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "osu!", "osu!.exe"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "osu!", "osu!.exe"),
-            @"C:\osu!\osu!.exe",
         };
 
         foreach (var candidate in candidates)
@@ -144,6 +146,7 @@ internal static class Injector
             Filter = "osu!.exe|osu!.exe",
             CheckFileExists = true,
             FileName = "osu!.exe",
+            InitialDirectory = DefaultOsuDirectory,
         };
 
         if (dialog.ShowDialog() != DialogResult.OK)

@@ -30,9 +30,10 @@ for the `master` branch and download the attached artifact to extract. No automa
 Only the `Stable` release stream is officially supported! `Cutting Edge` and `Beta` release streams
 may have changes that cause errors or crashes. No support will be provided.
 
-On first launch, the patcher looks for `osu!.exe` in common install locations and asks for its path
-if it cannot find it. The path is saved to `%LOCALAPPDATA%\Inlayo-patcher\settings.json` for future
-launches. The patcher temporarily creates a read-only `_staging` file in the osu! folder to prevent the
+On first launch, the patcher looks for `osu!.exe` in common install locations, checking
+`%LOCALAPPDATA%\osu!\osu!.exe` first, and opens the file picker in that folder if it cannot find it.
+The selected path is saved to `%LOCALAPPDATA%\Inlayo-patcher\settings.json` for future launches.
+The patcher temporarily creates a read-only `_staging` file in the osu! folder to prevent the
 client from applying updates, then starts osu! with `-nosplash -devserver inlayo.com` and applies the
 patches. The file is removed after injection (or if startup fails). If osu! exits during startup, the
 patcher retries once before showing an error.
